@@ -1,17 +1,19 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-typedef struct{
+#define MAX_BULLETS 16
+#define BULLET_SPEED 4
+
+typedef struct {
     int x, y;
-    int dx, dy;
     int active;
+    int dx, dy;
 } Bullet;
 
-#define MAX_BULLETS 20
 extern Bullet bullets[MAX_BULLETS];
 
 void initBullets();
-void shootBullet(int x,int y,int dx,int dy);
 void updateBullets();
+void shootBullet(int x, int y, int dx, int dy);
 
 #endif

@@ -2,31 +2,57 @@
 #include "zombie.h"
 #include <stdlib.h>
 
-int currentWave=0;
+// helper function declaration
+static int anyActiveZombies();   // <<< add this
 
-void initWaves(){ currentWave=0; }
+Wave currentWave;
 
-void spawnWave(){
-    currentWave++;
-    int numZombies = 3 + rand()%5;
-    for(int i=0;i<numZombies;i++){
-        for(int j=0;j<MAX_ZOMBIES;j++){
-            if(!zombies[j].active){
-                zombies[j].x = rand()%224;
-                zombies[j].y = rand()%144;
-                zombies[j].speed = 1 + rand()%2;
-                zombies[j].hp = 10 + rand()%10;
-                zombies[j].type = rand()%2;
-                zombies[j].active = 1;
-                break;
-            }
+void initWaveSystem() {
+    currentWave.waveNumber = 1;
+    currentWave.zombiesToSpawn = 3;
+    currentWave.spawned = 0;
+    currentWave.timer = 60; // 1 second delay (60 frames)
+}
+
+void spawnZombie(int x, int y) {
+    for(int i=0; i<MAX_ZOMBIES; i++){
+        if(!zombies[i].active){
+            zombies[i].x = x;
+            zombies[i].y = y;
+            zombies[i].active = 1;
+            break;
         }
     }
 }
 
-void updateWave(){
-    int active=0;
-    for(int i=0;i<MAX_ZOMBIES;i++)
-        if(zombies[i].active) active=1;
-    if(!active) spawnWave();
+void updateWaveSystem() {
+    if(currentWave.spawned >= currentWave.zombiesToSpawn){
+        // Wave complete, increment next wave
+        if(!anyActiveZombies()){ // Only start next wave when all zombies dead
+            currentWave.waveNumber++;
+            currentWave.zombiesToSpawn = 3 + currentWave.waveNumber; // increase difficulty
+            currentWave.spawned = 0;
+            currentWave.timer = 60;
+        }
+        return;
+    }
+
+    // Spawn zombies periodically
+    if(currentWave.timer > 0){
+        currentWave.timer--;
+    } else {
+        int x = rand() % 240;
+        int y = rand() % 160;
+        spawnZombie(x, y);
+        currentWave.spawned++;
+        currentWave.timer = 60; // next spawn in 1 second
+    }
+}
+
+// Helper: check if any zombies active
+static int anyActiveZombies(){
+    for(int i=0; i<MAX_ZOMBIES; i++){
+        if(zombies[i].active) return 1;
+    }
+    return 0;
 }

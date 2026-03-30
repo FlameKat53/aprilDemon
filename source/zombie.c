@@ -1,38 +1,24 @@
 #include "zombie.h"
 #include "player.h"
-#include "sound.h"
-#include <stdlib.h>
 
 Zombie zombies[MAX_ZOMBIES];
 
-int zombieFrameCounter=0;
-
-void initZombies(){
-    for(int i=0;i<MAX_ZOMBIES;i++) zombies[i].active=0;
+void initZombies() {
+    for(int i=0;i<MAX_ZOMBIES;i++){
+        zombies[i].x = 50 + i*20;
+        zombies[i].y = 50;
+        zombies[i].active = 1;
+    }
 }
 
-void updateZombies(){
-    zombieFrameCounter++;
-    if(zombieFrameCounter>10){
-        for(int i=0;i<MAX_ZOMBIES;i++)
-            zombies[i].animFrame = (zombies[i].animFrame+1)%2;
-        zombieFrameCounter=0;
-    }
-
+void updateZombies() {
     for(int i=0;i<MAX_ZOMBIES;i++){
         if(!zombies[i].active) continue;
 
-        int dx = player.x - zombies[i].x;
-        int dy = player.y - zombies[i].y;
-
-        if(dx>0) zombies[i].x += zombies[i].speed;
-        else if(dx<0) zombies[i].x -= zombies[i].speed;
-        if(dy>0) zombies[i].y += zombies[i].speed;
-        else if(dy<0) zombies[i].y -= zombies[i].speed;
-
-        if(abs(dx)<12 && abs(dy)<12){
-            player.hp -= 1;
-            playHitSound();
-        }
+        // Simple AI: move toward player
+        if(zombies[i].x < player.x) zombies[i].x += ZOMBIE_SPEED;
+        if(zombies[i].x > player.x) zombies[i].x -= ZOMBIE_SPEED;
+        if(zombies[i].y < player.y) zombies[i].y += ZOMBIE_SPEED;
+        if(zombies[i].y > player.y) zombies[i].y -= ZOMBIE_SPEED;
     }
 }
